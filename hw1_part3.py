@@ -5,11 +5,15 @@ def list_collaborators():
 	return "no collaborators."
 # TODO: your code here!
 def attack(known_plaintext, known_ciphertext, target_ciphertext):
-    C1 = known_ciphertext[16:16+16]
-    C2 = target_ciphertext[16:]
-    S = bytes( known_plaintext[i] ^ C1[i] for i in range(16) )
-    return bytes( C2[i] ^ S[i % 16] for i in range(len(C2)) )
+    B = 16
 
+    c1_block = known_ciphertext[B:2*B]
+    p1_block = known_plaintext[:B]
+    S = bytes(p1_block[i] ^ c1_block[i] for i in range(B))
+
+    C2 = target_ciphertext[B:]
+
+    return bytes(C2[i] ^ S[i % B] for i in range(len(C2)))
 
 # ------------------------------------------------------------------------------
 # You don't need to (and should not) edit anything below, but feel free to read it if you're curious!
