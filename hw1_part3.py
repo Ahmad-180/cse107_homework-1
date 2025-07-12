@@ -10,7 +10,7 @@ def attack(known_pt, known_ct, target_ct):
     iv          = known_ct[:16]
     counter1    = (int.from_bytes(iv, "big") + 1).to_bytes(16, "big")
     keystream0  = bc.xor_bytestrings(known_pt[:16], known_ct[16:32])
-    secret_key  = bc.AES_I(counter1, keystream0)   # AES^{-1}_{counter1}(keystream)
+    secret_key  = bc.AES_I(counter1, keystream0)   
 
     return bc.decrypt(target_ct, secret_key)
 # ------------------------------------------------------------------------------
