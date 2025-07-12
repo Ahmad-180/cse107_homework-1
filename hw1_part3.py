@@ -4,15 +4,15 @@ def list_collaborators():
 	# TODO: Edit the string below to list your collaborators. The autograder won't accept your submission until you do.
 	return "no collaborators."
 # TODO: your code here!
-def attack(known_pt, known_ct, target_ct):
+def attack(known_plaintext, known_ciphertext, target_ciphertext):
 
 
-    iv          = known_ct[:16]
+    iv          = known_ciphertext[:16]
     counter1    = (int.from_bytes(iv, "big") + 1).to_bytes(16, "big")
-    keystream0  = bc.xor_bytestrings(known_pt[:16], known_ct[16:32])
+    keystream0  = bc.xor_bytestrings(known_plaintext[:16], known_ciphertext[16:32])
     secret_key  = bc.AES_I(counter1, keystream0)   
 
-    return bc.decrypt(target_ct, secret_key)
+    return bc.decrypt(target_ciphertext, secret_key)
 # ------------------------------------------------------------------------------
 # You don't need to (and should not) edit anything below, but feel free to read it if you're curious!
 # It's for letting you test your code locally and for interfacing with the autograder
