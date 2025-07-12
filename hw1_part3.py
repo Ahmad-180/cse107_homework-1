@@ -5,15 +5,32 @@ def list_collaborators():
 	return "no collaborators."
 # TODO: your code here!
 def attack(known_plaintext, known_ciphertext, target_ciphertext):
-    B = 16
 
-    c1_block = known_ciphertext[B:2*B]
-    p1_block = known_plaintext[:B]
-    S = bytes(p1_block[i] ^ c1_block[i] for i in range(B))
+    iv_known  = known_ciphertext[:16]
+    body_known = known_ciphertext[16:]
 
-    C2 = target_ciphertext[B:]
+    iv_target  = target_ciphertext[:16]
+    body_target = target_ciphertext[16:]
 
-    return bytes(C2[i] ^ S[i % B] for i in range(len(C2)))
+   
+    counter1 = (int.from_bytes(iv_known, "big") + 1) % (1 << 128)
+    counter1_bytes = counter1.to_bytes(16, "big")
+
+    keystream0 = bc.xor_bytestrings(known_plaintext[:16], body_known[:16])
+    secret_key = bc.AES_I(counter1_bytes, keystream0)
+
+    counter = int.from_bytes(iv_target, "big")
+    plaintext = b""
+
+    for off in range(0, len(body_target), 16):
+        counter = (counter + 1) % (1 << 128)
+        ctr_bytes = counter.to_bytes(16, "big")
+
+        ks = bc.AES(ctr_bytes, secret_key)
+        block = bc.xor_bytestrings(body_target[off:off+16], ks)
+        plaintext += block
+
+    return plaintext.rstrip(b"\x00")   # autograder expects raw bytes
 
 # ------------------------------------------------------------------------------
 # You don't need to (and should not) edit anything below, but feel free to read it if you're curious!
