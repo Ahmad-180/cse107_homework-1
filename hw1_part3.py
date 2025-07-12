@@ -4,35 +4,15 @@ def list_collaborators():
 	# TODO: Edit the string below to list your collaborators. The autograder won't accept your submission until you do.
 	return "no collaborators."
 # TODO: your code here!
-def attack(known_plaintext, known_ciphertext, target_ciphertext):
-  
+def attack(known_pt, known_ct, target_ct):
 
-    iv_known  = known_ciphertext[:16]
-    body_known = known_ciphertext[16:]
 
-    iv_target  = target_ciphertext[:16]
-    body_target = target_ciphertext[16:]
+    iv          = known_ct[:16]
+    counter1    = (int.from_bytes(iv, "big") + 1).to_bytes(16, "big")
+    keystream0  = bc.xor_bytestrings(known_pt[:16], known_ct[16:32])
+    secret_key  = bc.AES_I(counter1, keystream0)   # AES^{-1}_{counter1}(keystream)
 
-  
-
-    counter1 = (int.from_bytes(iv_known, "big") + 1) % (1 << 128)
-    counter1_bytes = counter1.to_bytes(16, "big")
-
-    keystream0 = bc.xor_bytestrings(known_plaintext[:16], body_known[:16])
-    secret_key = bc.AES_I(counter1_bytes, keystream0)
-
-    counter = int.from_bytes(iv_target, "big")
-    plaintext = b""
-
-    for off in range(0, len(body_target), 16):
-        counter = (counter + 1) % (1 << 128)
-        ctr_bytes = counter.to_bytes(16, "big")
-
-        ks = bc.AES(ctr_bytes, secret_key)
-        block = bc.xor_bytestrings(body_target[off:off+16], ks)
-        plaintext += block
-
-    return plaintext.rstrip(b"\x00")   
+    return bc.decrypt(target_ct, secret_key)
 # ------------------------------------------------------------------------------
 # You don't need to (and should not) edit anything below, but feel free to read it if you're curious!
 # It's for letting you test your code locally and for interfacing with the autograder
